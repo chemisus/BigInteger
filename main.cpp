@@ -40,8 +40,34 @@ public:
     unsigned int getLength() {
         return length;
     }
+    
+    int compareTo(BigInteger *rhs) {
+        for (int i = length - 1; i >= 0; i--) {
+            if (values[i] != rhs->values[i]) {
+                return values[i] > rhs->values[i] ? 1 : -1;
+            }
+        }
+        
+        return 0;
+    }
 
     BigInteger* add(BigInteger* rhs) {
+        unsigned char* bytes = (unsigned char*) malloc(sizeof (unsigned char*) * length);
+
+        unsigned char carry = 0;
+
+        for (int i = 0; i < length; i++) {
+            ShortAndChar sc;
+            sc.s = values[i] + rhs->values[i] + carry;
+
+            bytes[i] = sc.c[0];
+            carry = sc.s >> 8;
+        }
+
+        return new BigInteger(bytes, length);
+    }
+    
+    BigInteger* times(BigInteger rhs) {
         unsigned char* bytes = (unsigned char*) malloc(sizeof (unsigned char*) * length);
 
         unsigned char carry = 0;
@@ -91,13 +117,16 @@ int main(int argc, char** argv) {
     // new BigInteger((unsigned char*)malloc(sizeof(unsigned char) * length), length);
 
     BigIntegerFactory big_integer_factory;
-    BigInteger* a = big_integer_factory.make(1);
-    BigInteger* b = big_integer_factory.make(1);
+    BigInteger* a = big_integer_factory.make(7);
+    BigInteger* b = big_integer_factory.make(7);
     BigInteger* c = a->add(b);
 
     a->print();
     b->print();
     c->print();
+    
+    printf("a compare to b: %d\n", a->compareTo(b));
+    printf("a compare to c: %d\n", a->compareTo(c));
 
     delete a;
     delete b;
